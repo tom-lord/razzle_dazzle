@@ -62,9 +62,14 @@ such as 'randomly' awarding points, or giving free rolls, or giving mini-prizes,
 
 #### Default values
 
-* There are *8* dice. (This config cannot yet be changed.)
-* Your initial bet-per-play is **1**. (This config cannot yet be changed.)
-* Your "winning score" is **10**. (This config cannot yet be changed.)
+##### Non-Configurable (yet)
+
+* There are **8** balls rolled each turn.
+* Your initial bet-per-play is **1**.
+* Your "winning score" is **10**.
+
+##### Configurable
+
 * The game board contains 120 scores, as taken from
 [this image](http://www.goodmagic.com/websales/midway/photos/razzle2.jpg).
 To summarise this, the number of occurances of each value is:
@@ -112,4 +117,5 @@ anything special...) To summarise this, the awarded scores are:
 
 * The special score of **29** (see the above board game image) is defined to
 mean "increase your bet by 1".
+(You can re-define this score, or any other score, to change the price-per-play in any way.)
 
