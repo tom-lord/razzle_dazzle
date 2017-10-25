@@ -68,7 +68,7 @@ module RazzleDazzle
         15 => ScoreActionFactory.build(added_score: 1.5),
         16 => ScoreActionFactory.build(added_score: 0.5),
         17 => ScoreActionFactory.build(added_score: 0.5),
-        # Other rules could be used here, e.g.
+        # Other rules could be used here, e.g. to DOUBLE the bet each time:
         # 29 => ScoreActionFactory.build(change_bet_hook: ->(bet){ bet * 2 }),
         29 => ScoreActionFactory.build(change_bet_hook: ->(bet){ bet + 1 }),
         39 => ScoreActionFactory.build(added_score: 0.5),
