@@ -70,7 +70,7 @@ such as 'randomly' awarding points, or giving free rolls, or giving mini-prizes,
 
 ##### Configurable
 
-* The game board contains 120 scores, as taken from
+* The game board contains 180 scores, as taken from
 [this image](http://www.goodmagic.com/websales/midway/photos/razzle2.jpg).
 To summarise this, the number of occurances of each value is:
 
