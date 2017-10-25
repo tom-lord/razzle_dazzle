@@ -100,8 +100,8 @@ such as 'randomly' awarding points, or giving free rolls, or giving mini-prizes,
 #### Default values
 
 * There are **8** balls rolled each turn. This is _not yet configurable_.
-* Your initial bet-per-play is **1**. This can be configured by like: `Game.new(initial_bet: 2)`
-* Your "winning score" is **10**. This can be configured by like: `Game.new(target_score: 5)`
+* The initial bet-per-play is **1**. This can be configured like: `Game.new(initial_bet: 2)`
+* The "winning score" is **10**. This can be configured like: `Game.new(target_score: 5)`
 * The game board contains 180 scores, as taken from
 [this image](http://www.goodmagic.com/websales/midway/photos/razzle2.jpg).
 To summarise this, the number of occurances of each value is:
