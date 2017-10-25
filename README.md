@@ -52,8 +52,10 @@ each time you score 29:
 
 ```ruby
 RazzleDazzle::Simulator.new(
-  score_actions: RazzleDazzle::ScoreActions.new(
-    29 => RazzleDazzle::ScoreActionFactory.build(change_bet_hook: ->(bet){ bet * 2 })
+  game_template: RazzleDazzle::Game.new(
+    score_actions: RazzleDazzle::ScoreActions.new(
+      29 => RazzleDazzle::ScoreActionFactory.build(change_bet_hook: ->(bet){ bet * 2 })
+    )
   )
 ).run
 
@@ -64,6 +66,22 @@ Simulation #1/1:
 
 (Yes, my result really was that big!! That's about `1.768 * 10^761`!)
 
+You can also run an game manually, either one turn at a time or "until won":
+
+```ruby
+game = RazzleDazzle::Game.new
+
+game.play_one_turn
+puts game.current_score
+puts game.current_bet
+puts game.total_spend
+puts game.turns
+puts game.total_spend
+
+# This simply calls Game#play_one_turn repeatedly
+# Depending on the rules, this will probably be a LOT of turns!!
+game.play_until_win
+```
 
 ### Configuration
 

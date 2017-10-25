@@ -5,11 +5,16 @@ module RazzleDazzle
       @counts = counts
     end
 
-    def possible_scores
-      @possible_scores ||= counts.map { |score, repeats| [score] * repeats }.flatten
+    def random_score
+      # TODO: make the number of balls (8) configurable
+      possible_scores.sample(8).inject(:+)
     end
 
     private
+
+    def possible_scores
+      @possible_scores ||= counts.map { |score, repeats| [score] * repeats }.flatten
+    end
 
     def default_counts
       {
@@ -52,7 +57,7 @@ module RazzleDazzle
       point_actions[this_score].new_score(previous_score)
     end
 
-    def change_bet(score, current_bet)
+    def new_bet(score, current_bet)
       point_actions[score].new_bet(current_bet)
     end
 
@@ -89,46 +94,50 @@ module RazzleDazzle
 
   class Game
     attr_accessor :turns, :current_score, :current_bet, :total_spend
-    attr_reader :score_actions, :target_score
-    def initialize(board: Board.new, score_actions: ScoreActions.new, target_score: 10)
+    attr_reader :score_actions, :target_score, :board
+    def initialize(board: Board.new, score_actions: ScoreActions.new, target_score: 10, initial_bet: 1)
       @board = board
       @score_actions = score_actions
+      @target_score = target_score
+      @current_bet = initial_bet
+
       @current_score = 0
       @turns = 0
-      @target_score = target_score
-      @current_bet = 1
       @total_spend = 0
     end
 
-    def play
-      while current_score < target_score do
-        self.turns += 1
-        this_roll = roll_score
-        self.total_spend += current_bet
-        self.current_score = score_actions.new_score(current_score, this_roll)
-        self.current_bet = score_actions.change_bet(this_roll, current_bet)
-      end  
+    def play_until_win
+      play_one_turn until won?
+    end
+
+    def play_one_turn
+      self.turns += 1
+      self.total_spend += current_bet
+
+      score = board.random_score
+      self.current_score = score_actions.new_score(current_score, score)
+      self.current_bet = score_actions.new_bet(score, current_bet)
+    end
+
+    def won?
+      current_score >= target_score
     end
 
     private
 
-    def roll_score
-      @board.possible_scores.sample(8).inject(:+)
-    end
   end
 
   class Simulator
-    attr_reader :board, :score_actions, :runs
-    def initialize(board: Board.new, score_actions: ScoreActions.new, runs: 1)
-      @board = board
-      @score_actions = score_actions
+    attr_reader :game_template, :runs
+    def initialize(game_template: Game.new, runs: 1)
+      @game_template = game_template
       @runs = runs
     end
 
     def run
       (1..runs).each do |run_number|
-        game = Game.new(board: board, score_actions: score_actions)
-        game.play
+        game = game_template.dup
+        game.play_until_win
         puts "Simulation ##{run_number}/#{runs}:"
         puts "  Total turns: #{game.turns}"
         puts "  Total spend: #{game.total_spend}"
@@ -139,4 +148,4 @@ module RazzleDazzle
 end
 
 # For example, try:
-# RazzleDazzle::Simulator.new(runs: 10).run
+RazzleDazzle::Simulator.new(runs: 10).run
