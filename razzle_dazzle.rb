@@ -35,15 +35,17 @@ module RazzleDazzle
       score + @added_score
     end
 
-    def new_bet(score)
-      @change_bet_hook.call(score)
+    def new_bet(current_bet)
+      @change_bet_hook.call(current_bet)
     end
   end
 
   class ScoreActions
     attr_reader :point_actions
-    def initialize(point_actions: default_point_actions)
-      @point_actions = Hash.new(ScoreActionFactory.build).merge(point_actions)
+    def initialize(custom_point_actions = {})
+      @point_actions = Hash.new(ScoreActionFactory.build)
+        .merge(default_point_actions)
+        .merge(custom_point_actions)
     end
 
     def new_score(previous_score, this_score)
@@ -136,4 +138,5 @@ module RazzleDazzle
 
 end
 
-RazzleDazzle::Simulator.new(runs: 10).run
+# For example, try:
+# RazzleDazzle::Simulator.new(runs: 10).run
