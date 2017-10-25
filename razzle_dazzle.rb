@@ -1,4 +1,3 @@
-require 'pry'
 module RazzleDazzle
   class Board
     attr_reader :counts
@@ -25,16 +24,19 @@ module RazzleDazzle
   end
 
   class ScoreActionFactory
-    def self.build(added_score: 0)
-      new(added_score)
-    end
+    class << self; alias_method :build, :new; end
 
-    def initialize(added_score)
+    def initialize(added_score: 0, change_bet_hook: :itself.to_proc)
       @added_score = added_score
+      @change_bet_hook = change_bet_hook
     end
 
-    def added_score
-      @added_score
+    def new_score(score)
+      score + @added_score
+    end
+
+    def new_bet(score)
+      @change_bet_hook.call(score)
     end
   end
 
@@ -44,8 +46,12 @@ module RazzleDazzle
       @point_actions = Hash.new(ScoreActionFactory.build).merge(point_actions)
     end
 
-    def points_for(score)
-      point_actions[score].added_score
+    def new_score(previous_score, this_score)
+      point_actions[this_score].new_score(previous_score)
+    end
+
+    def change_bet(score, current_bet)
+      point_actions[score].new_bet(current_bet)
     end
 
     private
@@ -62,6 +68,9 @@ module RazzleDazzle
         15 => ScoreActionFactory.build(added_score: 1.5),
         16 => ScoreActionFactory.build(added_score: 0.5),
         17 => ScoreActionFactory.build(added_score: 0.5),
+        # Other rules could be used here, e.g.
+        # 29 => ScoreActionFactory.build(change_bet_hook: ->(bet){ bet * 2 }),
+        29 => ScoreActionFactory.build(change_bet_hook: ->(bet){ bet + 1 }),
         39 => ScoreActionFactory.build(added_score: 0.5),
         40 => ScoreActionFactory.build(added_score: 0.5),
         41 => ScoreActionFactory.build(added_score: 1.5),
@@ -77,20 +86,25 @@ module RazzleDazzle
   end
 
   class Game
-    attr_accessor :turns
-    def initialize(board: Board.new, score_actions: ScoreActions.new)
+    attr_accessor :turns, :current_score, :current_bet, :total_spend
+    attr_reader :score_actions, :target_score
+    def initialize(board: Board.new, score_actions: ScoreActions.new, target_score: 10)
       @board = board
       @score_actions = score_actions
       @current_score = 0
       @turns = 0
-      @target_score = 10
+      @target_score = target_score
+      @current_bet = 1
+      @total_spend = 0
     end
 
     def play
-      while @current_score < @target_score do
+      while current_score < target_score do
         self.turns += 1
         this_roll = roll_score
-        @current_score += @score_actions.points_for(this_roll)
+        self.total_spend += current_bet
+        self.current_score = score_actions.new_score(current_score, this_roll)
+        self.current_bet = score_actions.change_bet(this_roll, current_bet)
       end  
     end
 
@@ -102,6 +116,7 @@ module RazzleDazzle
   end
 
   class Simulator
+    attr_reader :board, :score_actions, :runs
     def initialize(board: Board.new, score_actions: ScoreActions.new, runs: 1)
       @board = board
       @score_actions = score_actions
@@ -109,11 +124,12 @@ module RazzleDazzle
     end
 
     def run
-      (1..@runs).each do |run_number|
-        game = Game.new
+      (1..runs).each do |run_number|
+        game = Game.new(board: board, score_actions: score_actions)
         game.play
-        puts "Simulation ##{run_number}/#{@runs}:"
+        puts "Simulation ##{run_number}/#{runs}:"
         puts "  Total turns: #{game.turns}"
+        puts "  Total spend: #{game.total_spend}"
       end
     end
   end
