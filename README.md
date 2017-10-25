@@ -99,14 +99,9 @@ such as 'randomly' awarding points, or giving free rolls, or giving mini-prizes,
 
 #### Default values
 
-##### Non-Configurable (yet)
-
-* There are **8** balls rolled each turn.
-* Your initial bet-per-play is **1**.
-* Your "winning score" is **10**.
-
-##### Configurable
-
+* There are **8** balls rolled each turn. This is _not yet configurable_.
+* Your initial bet-per-play is **1**. This can be configured by like: `Game.new(initial_bet: 2)`
+* Your "winning score" is **10**. This can be configured by like: `Game.new(target_score: 5)`
 * The game board contains 180 scores, as taken from
 [this image](http://www.goodmagic.com/websales/midway/photos/razzle2.jpg).
 To summarise this, the number of occurances of each value is:
@@ -121,6 +116,8 @@ To summarise this, the number of occurances of each value is:
   6 => 10
 }
 ```
+
+This can be configured like: `Game.new(board: Board.new({1 => 3, 2 => 7, ...}))`.
 
 * Each game play score is taken from
 [this image](http://www.goodmagic.com/websales/midway/photos/razzlechart.jpg).
@@ -152,7 +149,29 @@ anything special...) To summarise this, the awarded scores are:
 }
 ```
 
+These defaults can be overriden and/or added to, like:
+
+```ruby
+Game.new(
+  score_actions: ScoreActions.new(
+    17 => ScoreActionFactory.build(added_score: 1),
+    18 => ScoreActionFactory.build(added_score: 0.5),
+  )
+)
+```
+
+
 * The special score of **29** (see the above board game image) is defined to
 mean "increase your bet by 1".
-(You can re-define this score, or any other score, to change the price-per-play in any way.)
+
+Like above, this default can be overriden and/or added to, like:
+
+```ruby
+Game.new(
+  score_actions: ScoreActions.new(
+    29 => ScoreActionFactory.build(change_bet_hook: ->(bet){ bet * 2 }),
+    30 => ScoreActionFactory.build(change_bet_hook: ->(bet){ bet.to_f / 2 })
+  )
+)
+```
 
